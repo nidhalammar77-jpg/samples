@@ -9,32 +9,58 @@ on:
 jobs:
   build-android:
     runs-on: ubuntu-latest
+
     defaults:
       run:
         working-directory: form_app
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.2'
+          channel: stable
 
-      - run: flutter pub get
-      - run: flutter build apk --release
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: form_app/build/app/outputs/flutter-apk/*.apk
 
   build-ios:
     runs-on: macos-latest
+
     defaults:
       run:
         working-directory: form_app
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.41.2'
+          channel: stable
 
-      - run: flutter pub get
-      - run: flutter build ipa --release --no-codesign
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build iOS (unsigned IPA)
+        run: flutter build ipa --release --no-codesign
+
+      - name: Upload iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: form_app/build/ios/ipa/*.ipa
