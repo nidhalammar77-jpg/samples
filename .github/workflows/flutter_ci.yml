@@ -1,4 +1,4 @@
-name: Flutter CI — Android + iOS
+name: Flutter CI — iOS Only
 
 on:
   push:
@@ -7,35 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-android:
-    runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: form_app
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.41.2'
-          channel: stable
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build Android APK
-        run: flutter build apk --release
-
-      - name: Upload Android artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: android-apk
-          path: build/app/outputs/flutter-apk/*.apk
-
   build-ios:
     runs-on: macos-latest
 
@@ -59,8 +30,23 @@ jobs:
       - name: Build iOS (unsigned)
         run: flutter build ios --release --no-codesign
 
+      - name: Debug build folder
+        run: |
+          echo "Listing build directory..."
+          find build -maxdepth 5 -print
+
+      - name: Package iOS app
+        run: |
+          APP_PATH=$(find build -type d -name "*.app" -print -quit)
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app found!"
+            exit 1
+          fi
+          echo "Found app at $APP_PATH"
+          zip -r ios-build.zip "$APP_PATH"
+
       - name: Upload iOS artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-build
-          path: build/ios/iphoneos/*.app
+          path: form_app/ios-build.zip
