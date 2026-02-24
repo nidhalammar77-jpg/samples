@@ -34,7 +34,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: android-apk
-          path: form_app/build/app/outputs/flutter-apk/*.apk
+          path: build/app/outputs/flutter-apk/*.apk
 
   build-ios:
     runs-on: macos-latest
@@ -56,11 +56,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build iOS (unsigned IPA)
-        run: flutter build ipa --release --no-codesign
+      - name: Build iOS (unsigned)
+        run: flutter build ios --release --no-codesign
 
       - name: Upload iOS artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ios-ipa
-          path: form_app/build/ios/ipa/*.ipa
+          name: ios-build
+          path: build/ios/iphoneos/*.app
